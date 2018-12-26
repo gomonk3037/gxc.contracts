@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(eosio_contracts VERSION 1.5.1)
+project(gxc_contracts VERSION 1.5.1)
 
 set(EOSIO_CDT_VERSION_MIN "1.4")
 set(EOSIO_CDT_VERSION_SOFT_MAX "1.4")
@@ -33,8 +33,6 @@ endif()
 add_subdirectory(eosio.bios)
 add_subdirectory(eosio.msig)
 add_subdirectory(eosio.wrap)
-add_subdirectory(eosio.system)
-add_subdirectory(eosio.token)
 
 if (APPLE)
    set(OPENSSL_ROOT "/usr/local/opt/openssl")
@@ -43,4 +41,5 @@ elseif (UNIX)
 endif()
 set(SECP256K1_ROOT "/usr/local")
 
-include(UnitTestsExternalProject.txt)
+# FIXME: needs to update unit tests
+#include(UnitTestsExternalProject.txt)
