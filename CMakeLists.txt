@@ -34,6 +34,7 @@ add_subdirectory(eosio.bios)
 add_subdirectory(eosio.msig)
 add_subdirectory(eosio.wrap)
 add_subdirectory(gxc.game)
+add_subdirectory(gxc.user)
 
 if (APPLE)
    set(OPENSSL_ROOT "/usr/local/opt/openssl")
