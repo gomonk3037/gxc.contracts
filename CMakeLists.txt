@@ -38,6 +38,7 @@ add_subdirectory(gxc.user)
 add_subdirectory(gxc.token)
 add_subdirectory(gxc.systoken)
 add_subdirectory(gxc.stdtoken)
+add_subdirectory(gxc.escrow)
 
 if (APPLE)
    set(OPENSSL_ROOT "/usr/local/opt/openssl")
