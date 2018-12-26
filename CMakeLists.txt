@@ -33,6 +33,7 @@ endif()
 add_subdirectory(eosio.bios)
 add_subdirectory(eosio.msig)
 add_subdirectory(eosio.wrap)
+add_subdirectory(gxc.game)
 
 if (APPLE)
    set(OPENSSL_ROOT "/usr/local/opt/openssl")
