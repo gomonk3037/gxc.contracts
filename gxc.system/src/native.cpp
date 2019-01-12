@@ -19,6 +19,8 @@ void contract::onblock(ignore<block_header> header) {
 }
 
 void contract::newaccount(name creator, name name, ignore<authority> owner, ignore<authority> active) {
+   require_auth(_self);
+
    if (creator != _self) {
       eosio_assert(name.length() >= 6, "a name shorter than 6 is reserved");
       eosio_assert(!has_dot(name), "user account name cannot contain dot");
@@ -32,6 +34,8 @@ void contract::newaccount(name creator, name name, ignore<authority> owner, igno
       });
 
       set_resource_limits(name.value, 0 + ram_gift_bytes, 0, 0);
+
+      action({{name, active_permission}}, user_account, "payram4nick"_n, name).send();
    }
 }
 
