@@ -35,7 +35,7 @@ public:
       indexed_by<"nickname"_n, const_mem_fun<nickrow, eosio::checksum256, &nickrow::secondary_key>>
    > nicktable;
 
-   static bool is_valid_nickname(string nickname) {
+   static bool is_valid_nickname(string nickname, bool unbound = false) {
       if (nickname.empty()) return false;
 
       auto it = nickname.begin();
@@ -46,7 +46,7 @@ public:
          len += 1 + !!(cp & 0xff00);
       }
 
-      eosio_assert((len >= 6) && (len <= 16), "nickname has invalid length");
+      eosio_assert(unbound || ((len >= 6) && (len <= 16)), "nickname has invalid length");
 
       return true;
    }

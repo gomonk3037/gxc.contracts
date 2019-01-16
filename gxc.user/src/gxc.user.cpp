@@ -3,6 +3,7 @@
  * @copyright defined in gxc/LICENSE
  */
 #include <gxc.user/gxc.user.hpp>
+#include <gxclib/game.hpp>
 
 namespace gxc { namespace user {
 
@@ -17,7 +18,7 @@ void contract::login(name account_name, name game_name, string login_token) {
 
 void contract::setnick(name account_name, string nickname) {
    eosio_assert(nickname.size() <= 24, "nickname too long");
-   eosio_assert(is_valid_nickname(nickname), "invalid nickname");
+   eosio_assert(is_valid_nickname(nickname, game::is_game(account_name)), "invalid nickname");
 
    require_auth(account_name);
 
