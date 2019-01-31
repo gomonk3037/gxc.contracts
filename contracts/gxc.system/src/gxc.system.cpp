@@ -166,9 +166,18 @@ void contract::init(unsigned_int version, symbol core) {
    }
 }
 
+void contract::genaccount(name creator, name name, authority owner, authority active, std::string nickname) {
+   require_auth(creator);
+
+   action({{_self, active_permission}}, user_account, "setnick"_n, std::make_tuple(name, nickname)).send();
+   action({{creator, active_permission}, {_self, active_permission}}, _self, "newaccount"_n,
+      std::make_tuple(creator, name, owner, active)
+   ).send();
+}
+
 } }
 
 GXC_DISPATCH(gxc::system::contract,
    (newaccount)(updateauth)(deleteauth)(linkauth)(unlinkauth)(canceldelay)(onerror)(setabi)(setcode)
-   (init)(setram)(setramrate)(setparams)(setpriv)(setalimits)
+   (init)(setram)(setramrate)(setparams)(setpriv)(setalimits)(genaccount)
 )

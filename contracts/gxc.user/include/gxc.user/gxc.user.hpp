@@ -6,6 +6,7 @@
 
 #include <eosiolib/eosio.hpp>
 #include <utf8/utf8.h>
+#include <gxclib/system.hpp>
 
 using namespace eosio;
 using std::string;
@@ -19,6 +20,7 @@ public:
    [[eosio::action]] void login (name account_name, name game_name, string login_token);
    [[eosio::action]] void setnick (name account_name, string nickname);
    [[eosio::action]] void rmvnick (name account_name);
+   [[eosio::action]] void payram4nick (name account_name);
 
    struct [[eosio::table, eosio::contract("gxc.user")]] nickrow {
       name    account_name;

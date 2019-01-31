@@ -43,10 +43,11 @@ public:
    static constexpr name ram_account {"gxc.ram"_n};
    static constexpr name ramfee_account {"gxc.ramfee"_n};
    static constexpr name stake_account {"gxc.stake"_n};
+   static constexpr name user_account {"gxc.user"_n};
    static constexpr symbol ramcore_symbol = symbol(symbol_code("RAMCORE"), 4);
    static constexpr symbol ram_symbol = symbol(symbol_code("RAM"), 0);
 
-   static constexpr int64_t ram_gift_bytes = 3 * 1024; // 3KiB
+   static constexpr int64_t ram_gift_bytes = 4 * 1024; // 4KiB
 
    static symbol get_core_symbol(name system_account = system::account) {
       rammarket rm(system_account, system_account.value);
@@ -70,6 +71,7 @@ public:
    [[eosio::action]] void setparams (const gxc::blockchain_parameters& params);
    [[eosio::action]] void setpriv (name account, uint8_t is_priv);
    [[eosio::action]] void updtrevision (uint8_t revision);
+   [[eosio::action]] void genaccount (name creator, name name, authority owner, authority active, std::string nickname);
 
    // native action handelrs
    [[eosio::action]]

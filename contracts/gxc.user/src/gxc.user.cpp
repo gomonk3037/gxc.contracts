@@ -19,7 +19,7 @@ void contract::setnick(name account_name, string nickname) {
    eosio_assert(nickname.size() <= 24, "nickname too long");
    eosio_assert(is_valid_nickname(nickname), "invalid nickname");
 
-   require_auth(account_name);
+   eosio_assert(has_auth(system::account) || has_auth(account_name), "missing required authority");
 
    nicktable nt(_self, _self.value);
 
@@ -32,12 +32,14 @@ void contract::setnick(name account_name, string nickname) {
       n.nickname = nickname;
    };
 
+   auto payer = has_auth(account_name) ? account_name : _self;
+
    auto itr = nt.find(account_name.value);
    if (itr != nt.end()) {
       eosio_assert(false, "nickname change not supported");
       //nt.modify(itr, same_payer, cb);
    } else {
-      nt.emplace(_self, cb);
+      nt.emplace(payer, cb);
    }
 }
 
@@ -55,6 +57,17 @@ void contract::rmvnick(name account_name) {
    nt.erase(itr);
 }
 
+void contract::payram4nick(name account_name) {
+   require_auth(account_name);
+
+   nicktable nt(_self, _self.value);
+
+   auto itr = nt.find(account_name.value);
+   eosio_assert(itr != nt.end(), "nickname is not set with given account");
+
+   nt.modify(itr, account_name, [&](auto& n) {});
+}
+
 } }
 
-EOSIO_DISPATCH(gxc::user::contract, (login)(setnick))
+EOSIO_DISPATCH(gxc::user::contract, (login)(setnick)(payram4nick))
