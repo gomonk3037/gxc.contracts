@@ -49,6 +49,9 @@ namespace gxc {
       [[eosio::action]]
       void withdraw(name owner, extended_asset quantity);
 
+      [[eosio::action]]
+      void clearreqs(name owner);
+
       struct [[eosio::table("accounts"), eosio::contract("gxc.token")]] account_balance {
          enum opt {
             frozen = 0,
@@ -91,7 +94,7 @@ namespace gxc {
          int64_t  _max_supply; // 24
          name     issuer;      // 32
          uint32_t _opts = 0x3; // 36, defaults to (can_recall, can_freeeze)
-         uint32_t withdraw_delay_sec;   // 40
+         uint32_t withdraw_delay_sec = 24 * 3600; // 40, defaults to 1 day
          int64_t  _withdraw_min_amount; // 48
 
          asset get_max_supply()const { return asset(_max_supply, supply.symbol); }
@@ -122,19 +125,19 @@ namespace gxc {
       struct [[eosio::table("withdraws"), eosio::contract("gxc.token")]] withdrawal_request {
          asset          quantity;
          name           issuer;
-         time_point_sec requested_time;
+         time_point_sec scheduled_time;
          uint64_t       id;
 
          uint64_t  primary_key()const       { return id; }
          uint128_t by_symbol_code()const    { return extended_symbol_code(quantity.symbol, issuer).raw(); }
-         uint64_t  by_requested_time()const { return static_cast<uint64_t>(requested_time.utc_seconds); }
+         uint64_t  by_scheduled_time()const { return static_cast<uint64_t>(scheduled_time.utc_seconds); }
 
-         EOSLIB_SERIALIZE( withdrawal_request, (quantity)(issuer)(requested_time)(id) )
+         EOSLIB_SERIALIZE( withdrawal_request, (quantity)(issuer)(scheduled_time)(id) )
       };
 
       typedef multi_index<"withdraws"_n, withdrawal_request,
                  indexed_by<"symcode"_n, const_mem_fun<withdrawal_request, uint128_t, &withdrawal_request::by_symbol_code>>,
-                 indexed_by<"reqtime"_n, const_mem_fun<withdrawal_request, uint64_t, &withdrawal_request::by_requested_time>>
+                 indexed_by<"schedtime"_n, const_mem_fun<withdrawal_request, uint64_t, &withdrawal_request::by_scheduled_time>>
               > withdraws;
 
    private:
