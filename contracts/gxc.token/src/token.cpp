@@ -214,13 +214,13 @@ namespace gxc {
 
       if (_req.exists()) {
          _req.modify(same_payer, [&](auto& rq) {
-            rq.requested_time = ctp;
+            rq.scheduled_time = ctp + seconds(_this->withdraw_delay_sec);
             rq.quantity += value.quantity;
          });
       } else {
          _req.emplace(owner, [&](auto& rq) {
             rq.id             = _req.table().available_primary_key();
-            rq.requested_time = ctp;
+            rq.scheduled_time = ctp + seconds(_this->withdraw_delay_sec);
             rq.quantity       = value.quantity;
             rq.issuer         = value.contract;
          });
@@ -229,6 +229,6 @@ namespace gxc {
       get_account(owner).sub_deposit(value);
       get_account(code()).add_balance(value);
 
-      _req.refresh_schedule(ctp);
+      _req.refresh_schedule(ctp + seconds(_this->withdraw_delay_sec));
    }
 }
