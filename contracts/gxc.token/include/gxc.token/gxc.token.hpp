@@ -59,9 +59,9 @@ namespace gxc {
       [[eosio::action]]
       void approve(name owner, name spender, extended_asset value);
 
-      static uint64_t get_id(const extended_asset& value, uint64_t seed) {
+      static uint64_t get_id(const extended_asset& value) {
          auto sym_code = extended_symbol_code(value.quantity.symbol, value.contract);
-         return fasthash64(reinterpret_cast<const char*>(&sym_code), sizeof(uint128_t), seed);
+         return xxh3_64(reinterpret_cast<const char*>(&sym_code), sizeof(uint128_t));
       }
 
       struct [[eosio::table("accounts"), eosio::contract("gxc.token")]] account_balance {
@@ -87,8 +87,7 @@ namespace gxc {
             else     _issuer.value &= ~(0x1 << option);
          }
 
-         static constexpr uint64_t seed = name("accounts").value;
-         static uint64_t get_id(extended_asset value) { return token_contract::get_id(value, seed); }
+         static uint64_t get_id(extended_asset value) { return token_contract::get_id(value); }
 
          uint64_t primary_key()const { return get_id(extended_asset(balance, get_issuer())); }
          uint64_t by_issuer()const   { return _issuer.value & 0xFFFFFFFFFFFFFFF0ULL; }
@@ -102,17 +101,19 @@ namespace gxc {
 
       struct [[eosio::table("stat"), eosio::contract("gxc.token")]] currency_stats {
          enum opt {
-            can_recall = 0,
-            can_freeze,
-            can_whitelist,
-            is_frozen,
-            enforce_whitelist
+            mintable = 0,
+            recallable,
+            freezable,
+            pausable,
+            paused,
+            whitelistable,
+            whitelist_on
          };
 
          asset    supply;      // 16
          int64_t  _max_supply; // 24
          name     issuer;      // 32
-         uint32_t _opts = 0x3; // 36, defaults to (can_recall, can_freeeze)
+         uint32_t _opts = 0x7; // 36, defaults to (mintable, recallable, freezable)
          uint32_t withdraw_delay_sec = 24 * 3600; // 40, defaults to 1 day
          int64_t  _withdraw_min_amount; // 48
 
@@ -146,8 +147,7 @@ namespace gxc {
          name           issuer;
          time_point_sec scheduled_time;
 
-         static constexpr uint64_t seed = name("withdraws").value;
-         static uint64_t get_id(extended_asset value) { return token_contract::get_id(value, seed); }
+         static uint64_t get_id(extended_asset value) { return token_contract::get_id(value); }
 
          uint64_t primary_key()const       { return get_id(extended_asset(this->quantity, this->issuer)); }
          uint64_t by_scheduled_time()const { return static_cast<uint64_t>(scheduled_time.utc_seconds); }
@@ -164,14 +164,13 @@ namespace gxc {
          asset quantity; // 24
          name  issuer;   // 32
 
-         static constexpr uint64_t seed = name("allowance").value;
          static uint64_t get_id(name spender, extended_asset value) {
             std::array<char,24> raw;
             auto sym_code = extended_symbol_code(value.quantity.symbol, value.contract).raw();
             datastream<char*> ds(raw.data(), raw.size());
             ds << spender;
             ds << sym_code;
-            return fasthash64(reinterpret_cast<const char*>(raw.data()), raw.size(), seed);
+            return xxh3_64(raw.data(), raw.size());
          }
 
          uint64_t primary_key()const { return get_id(spender, extended_asset(quantity, issuer)); }
@@ -248,7 +247,7 @@ namespace gxc {
          void check_account_is_valid() {
             if (code() != owner()) {
                check(!_this->get_opt(opt::frozen), "account is frozen");
-               check(!(*_st)->get_opt(token::opt::enforce_whitelist) || _this->get_opt(opt::whitelist), "account is not whitelisted");
+               check(!(*_st)->get_opt(token::opt::whitelist_on) || _this->get_opt(opt::whitelist), "account is not whitelisted");
             }
          }
 
