@@ -13,12 +13,12 @@ namespace gxc {
       modify(same_payer, [&](auto& a) {
          for (auto o : opts) {
             if (o.first == "frozen") {
-               check((*_st)->get_opt(token::opt::can_freeze), "not configured to freeze account");
+               check((*_st)->get_opt(token::opt::freezable), "not configured to freeze account");
                auto value = unpack<bool>(o.second);
                check(a.get_opt(opt::frozen) != value, "option already has give value");
                a.set_opt(opt::frozen, value);
             } else if (o.first == "whitelist") {
-               check((*_st)->get_opt(token::opt::can_whitelist), "not configured to whitelist account");
+               check((*_st)->get_opt(token::opt::whitelistable), "not configured to whitelist account");
                auto value = unpack<bool>(o.second);
                check(a.get_opt(opt::whitelist) != value, "option already has give value");
                a.set_opt(opt::whitelist, value);
@@ -47,7 +47,7 @@ namespace gxc {
 
    void token_contract::account::add_balance(extended_asset value) {
       if (!exists()) {
-         check(!(*_st)->get_opt(token::opt::enforce_whitelist) || has_vauth(value.contract), "required to open balance manually");
+         check(!(*_st)->get_opt(token::opt::whitelist_on) || has_vauth(value.contract), "required to open balance manually");
          emplace(code(), [&](auto& a) {
             a.balance = value.quantity;
             a.set_deposit(asset(0, value.quantity.symbol));
@@ -79,7 +79,7 @@ namespace gxc {
 
    void token_contract::account::add_deposit(extended_asset value) {
       if (!exists()) {
-         check(!(*_st)->get_opt(token::opt::enforce_whitelist) || has_vauth(value.contract), "required to open deposit manually");
+         check(!(*_st)->get_opt(token::opt::whitelist_on) || has_vauth(value.contract), "required to open deposit manually");
          _tbl.emplace(code(), [&](auto& a) {
             a.balance = asset(0, value.quantity.symbol);
             a.set_deposit(value.quantity);
