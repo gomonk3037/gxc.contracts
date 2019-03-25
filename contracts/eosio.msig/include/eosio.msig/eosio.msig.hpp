@@ -1,8 +1,9 @@
 #pragma once
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/ignore.hpp>
-#include <eosiolib/transaction.hpp>
+#include <eosio/eosio.hpp>
+#include <eosio/ignore.hpp>
+#include <eosio/transaction.hpp>
 
+#include <eosio/binary_extension.hpp>
 namespace eosio {
 
    class [[eosio::contract("eosio.msig")]] multisig : public contract {
