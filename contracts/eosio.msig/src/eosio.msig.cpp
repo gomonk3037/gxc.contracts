@@ -3,12 +3,6 @@
 #include <eosio/permission.hpp>
 #include <eosio/crypto.hpp>
 namespace eosio {
-
-time_point current_time_point() {
-   const static time_point ct = publication_time();
-   return ct;
-}
-
 void multisig::propose( ignore<name> proposer,
                         ignore<name> proposal_name,
                         ignore<std::vector<permission_level>> requested,
