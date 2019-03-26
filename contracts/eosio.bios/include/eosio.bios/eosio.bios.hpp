@@ -100,7 +100,6 @@ namespace eosio {
          [[eosio::action]]
          void setcode( name account, uint8_t vmtype, uint8_t vmversion, const std::vector<char>& code ) {}
 
-
          [[eosio::action]]
          void setpriv( name account, uint8_t is_priv ) {
             require_auth( _self );
@@ -145,12 +144,12 @@ namespace eosio {
                table.emplace( account, [&]( auto& row ) {
                   row.owner = account;
                   auto hash = sha256(const_cast<char*>(abi.data()),abi.size()).extract_as_byte_array();
-                  std::copy(std::begin(hash),std::end(hash),(char*)&row.hash);
+                  std::copy(hash.begin(), hash.end(), row.hash.begin());
                });
             } else {
                table.modify( itr, same_payer, [&]( auto& row ) {
                   auto hash = sha256(const_cast<char*>(abi.data()),abi.size()).extract_as_byte_array();
-                  std::copy(std::begin(hash),std::end(hash),(char*)&row.hash);
+                  std::copy(hash.begin(), hash.end(), row.hash.begin());
                });
             }
          }

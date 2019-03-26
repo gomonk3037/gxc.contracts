@@ -1,14 +1,8 @@
 #include <eosio.msig/eosio.msig.hpp>
-#include <eosio/action.hpp>
 #include <eosio/permission.hpp>
 #include <eosio/crypto.hpp>
+
 namespace eosio {
-
-time_point current_time_point() {
-   const static time_point ct = publication_time();
-   return ct;
-}
-
 void multisig::propose( ignore<name> proposer,
                         ignore<name> proposal_name,
                         ignore<std::vector<permission_level>> requested,
@@ -180,8 +174,8 @@ void multisig::exec( name proposer, name proposal_name, name executer ) {
                                                  packed_provided_approvals.data(), packed_provided_approvals.size()
                                                  );
    check( res > 0, "transaction authorization failed" );
-   send_deferred((uint128_t(proposer.value) << 64)|proposal_name.value, executer,
-                 prop.packed_transaction.data(),prop.packed_transaction.size());
+   send_deferred((uint128_t(proposer.value) << 64) | proposal_name.value, executer,
+                 prop.packed_transaction.data(), prop.packed_transaction.size());
    proptable.erase(prop);
 }
 
@@ -202,5 +196,3 @@ void multisig::invalidate( name account ) {
 }
 
 } /// namespace eosio
-
-//EOSIO_DISPATCH( eosio::multisig, (propose)(approve)(unapprove)(cancel)(exec)(invalidate) )
