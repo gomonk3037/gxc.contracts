@@ -3,7 +3,7 @@
  * @copyright defined in gxc/LICENSE
  */
 #pragma once
-#include <eosiolib/action.h>
+#include <eosio/action.hpp>
 
 namespace eosio {
 
@@ -19,18 +19,18 @@ name rootname(name n) {
 }
 
 name basename(name n) {
-   if (::is_account(n.value))
+   if (is_account(n))
       return n;
    else
       return rootname(n);
 }
 
 inline bool has_vauth(name n) {
-   return ::has_auth(basename(n).value);
+   return has_auth(basename(n));
 }
 
 inline void require_vauth(name n) {
-   ::require_auth(basename(n).value);
+   require_auth(basename(n));
 }
 
 }

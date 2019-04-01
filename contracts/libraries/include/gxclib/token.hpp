@@ -4,17 +4,18 @@
  */
 #pragma once
 
-#include <eosiolib/name.hpp>
-#include <eosiolib/asset.hpp>
-#include <eosiolib/action.hpp>
+#include <eosio/name.hpp>
+#include <eosio/asset.hpp>
+#include <eosio/action.hpp>
 #include <eosio-xt/crypto.hpp>
 #include "symbol.hpp"
 
 #include <cmath>
 
-namespace gxc { 
+namespace gxc {
 
 using namespace eosio;
+using namespace eosio::internal_use_do_not_use;
 
 constexpr name token_account = "gxc.token"_n;
 
