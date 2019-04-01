@@ -3,14 +3,14 @@
  * @copyright defined in gxc/LICENSE
  */
 #include <gxc.token/gxc.token.hpp>
-#include <eosiolib/transaction.hpp>
+#include <eosio/transaction.hpp>
 
 namespace gxc {
 
    constexpr name active_permission {"active"_n};
 
    void token_contract::requests::refresh_schedule(time_point_sec base_time) {
-      auto _idx = _tbl.get_index<"schedtime"_n>();
+      auto _idx = get_index<"schedtime"_n>();
       auto _it = _idx.begin();
 
       if (_it != _idx.end()) {
@@ -36,7 +36,7 @@ namespace gxc {
    void token_contract::requests::clear() {
       require_auth(owner());
 
-      auto _idx = _tbl.get_index<"schedtime"_n>();
+      auto _idx = get_index<"schedtime"_n>();
       auto _it = _idx.begin();
 
       check(_it != _idx.end(), "withdrawal requests not found");
@@ -45,19 +45,10 @@ namespace gxc {
          auto _token = token(code(), _it->issuer, _it->quantity.symbol);
          if (_it->scheduled_time > current_time_point()) break;
 
-         _token.get_account(code()).sub_balance(extended_asset(_it->quantity, _it->issuer));
-         _token.get_account(owner()).add_balance(extended_asset(_it->quantity, _it->issuer));
+         _token.get_account(code()).sub_balance(_it->value());
+         _token.get_account(owner()).add_balance(_it->value());
 
-         action receipt;
-         receipt.account = code();
-         receipt.name    = name("withdraw");
-         receipt.data.resize(sizeof(name) + sizeof(extended_asset));
-
-         datastream<char*> ds(receipt.data.data(), receipt.data.size());
-         ds << owner();
-         ds << extended_asset(_it->quantity, _it->issuer);
-
-         receipt.send_context_free();
+         event_withdraw(code(), {code(), "active"_n}).send(owner(), _it->value());
 
          _idx.erase(_it);
       }
