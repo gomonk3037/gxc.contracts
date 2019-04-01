@@ -13,9 +13,22 @@ using eosio::check;
 
 constexpr name game_account = "gxc.game"_n;
 
-void check_is_game(name name) {
-   auto it = eosio::internal_use_do_not_use::db_find_i64(game_account.value, game_account.value, "game"_n.value, basename(name).value);
-   check(it != eosio::internal_use_do_not_use::db_end_i64(game_account.value, game_account.value, "game"_n.value), "not registered to game account");
-}
+   struct [[eosio::table, eosio::contract("gxc.game")]] game {
+      name        name;
+      std::string uri;
+
+      uint64_t primary_key()const { return name.value; }
+
+      EOSLIB_SERIALIZE(game, (name)(uri))
+   };
+
+   typedef eosio::multi_index<"game"_n, game> games;
+
+   void check_is_game(name name) {
+      games gms(game_account, game_account.value);
+      auto it = gms.find(basename(name).value);
+
+      check(it != gms.end(), "not registered to game account");
+   }
 
 }
